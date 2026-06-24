@@ -35,10 +35,29 @@ export interface CoinWithPercentage extends CoinMarketData {
   percentageOfTotal: number;
 }
 
-const COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3";
+// Check for API key - use Pro API if available, otherwise free API
+// For Cloudflare Pages, set VITE_COINGECKO_API_KEY in your environment variables
+const API_KEY = typeof import.meta !== 'undefined' 
+  ? (import.meta as any).env?.VITE_COINGECKO_API_KEY 
+  : undefined;
+
+const COINGECKO_BASE_URL = API_KEY
+  ? "https://pro-api.coingecko.com/api/v3"
+  : "https://api.coingecko.com/api/v3";
+
+function getHeaders(): HeadersInit {
+  if (API_KEY) {
+    return {
+      "x-cg-pro-api-key": API_KEY,
+    };
+  }
+  return {};
+}
 
 export async function fetchGlobalData(): Promise<GlobalData> {
-  const response = await fetch(`${COINGECKO_BASE_URL}/global`);
+  const response = await fetch(`${COINGECKO_BASE_URL}/global`, {
+    headers: getHeaders(),
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch global data: ${response.status}`);
   }
@@ -47,7 +66,8 @@ export async function fetchGlobalData(): Promise<GlobalData> {
 
 export async function fetchCoinsMarket(ids: string): Promise<CoinMarketData[]> {
   const response = await fetch(
-    `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc`
+    `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc`,
+    { headers: getHeaders() }
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch coins market data: ${response.status}`);
@@ -57,7 +77,8 @@ export async function fetchCoinsMarket(ids: string): Promise<CoinMarketData[]> {
 
 export async function fetchTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
   const response = await fetch(
-    `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1`
+    `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1`,
+    { headers: getHeaders() }
   );
   if (!response.ok) {
     throw new Error(`Failed to fetch top coins: ${response.status}`);
