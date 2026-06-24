@@ -1,4 +1,15 @@
 export function ExplainerSection() {
+  const grokLink = (term: string, slug: string) => (
+    <a
+      href={`https://grokipedia.com/${slug}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-white underline decoration-content-40 underline-offset-2 hover:decoration-flare transition-colors"
+    >
+      {term}
+    </a>
+  );
+
   return (
     <section className="py-12 border-t border-border mt-8">
       <h3 className="text-lg font-medium text-white mb-6 uppercase tracking-wider">
@@ -8,18 +19,19 @@ export function ExplainerSection() {
       <div className="space-y-4 text-content-70 max-w-3xl">
         <p>
           Most cryptocurrencies today rely on{" "}
-          <strong className="text-white">ECDSA</strong> (Elliptic Curve Digital
+          {grokLink("ECDSA", "ecdsa")} (Elliptic Curve Digital
           Signature Algorithm) or similar cryptographic algorithms to secure
           transactions and wallets. These algorithms could potentially be broken
-          by sufficiently powerful quantum computers using{" "}
-          <strong className="text-white">Shor's algorithm</strong>.
+          by sufficiently powerful {grokLink("quantum computers", "quantum-computing")} using{" "}
+          {grokLink("Shor's algorithm", "shors-algorithm")}.
         </p>
 
         <p>
-          <strong className="text-white">Post-quantum cryptography</strong>{" "}
+          {grokLink("Post-quantum cryptography", "post-quantum-cryptography")}{" "}
           (PQC) refers to cryptographic algorithms that are believed to be
           secure against both classical and quantum computer attacks. These
-          include lattice-based, hash-based, code-based, and multivariate
+          include {grokLink("lattice-based", "lattice-based-cryptography")},{" "}
+          {grokLink("hash-based", "hash-based-cryptography")}, code-based, and multivariate
           polynomial cryptography.
         </p>
 
@@ -110,7 +122,8 @@ export function ExplainerSection() {
               individual address types within each chain
             </li>
             <li>
-              Addresses that have been reused or have exposed public keys may be 
+              Addresses that have been reused or have exposed{" "}
+              {grokLink("public keys", "public-key-cryptography")} may be 
               more vulnerable, even on PQ-secure chains
             </li>
             <li>
