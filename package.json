@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "preview:cf": "astro build && bunx wrangler pages dev dist"
   },
   "dependencies": {
     "@astrojs/react": "4.2.0",

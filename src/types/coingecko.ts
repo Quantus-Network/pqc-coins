@@ -35,53 +35,24 @@ export interface CoinWithPercentage extends CoinMarketData {
   percentageOfTotal: number;
 }
 
-// Check for API key - use Pro API if available, otherwise free API
-// For Cloudflare Pages, set VITE_COINGECKO_API_KEY in your environment variables
-const API_KEY = typeof import.meta !== 'undefined' 
-  ? (import.meta as any).env?.VITE_COINGECKO_API_KEY 
-  : undefined;
+interface TrackerApiResponse extends Omit<TrackerData, "updatedAt"> {
+  updatedAt: string;
+}
 
-const COINGECKO_BASE_URL = API_KEY
-  ? "https://pro-api.coingecko.com/api/v3"
-  : "https://api.coingecko.com/api/v3";
-
-function getHeaders(): HeadersInit {
-  if (API_KEY) {
-    return {
-      "x-cg-pro-api-key": API_KEY,
+export async function fetchTrackerData(): Promise<TrackerData> {
+  const response = await fetch("/api/tracker");
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as {
+      error?: string;
     };
+    throw new Error(
+      body.error ?? `Failed to fetch tracker data: ${response.status}`
+    );
   }
-  return {};
-}
 
-export async function fetchGlobalData(): Promise<GlobalData> {
-  const response = await fetch(`${COINGECKO_BASE_URL}/global`, {
-    headers: getHeaders(),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch global data: ${response.status}`);
-  }
-  return response.json();
-}
-
-export async function fetchCoinsMarket(ids: string): Promise<CoinMarketData[]> {
-  const response = await fetch(
-    `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${ids}&order=market_cap_desc`,
-    { headers: getHeaders() }
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch coins market data: ${response.status}`);
-  }
-  return response.json();
-}
-
-export async function fetchTopCoins(limit: number = 10): Promise<CoinMarketData[]> {
-  const response = await fetch(
-    `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${limit}&page=1`,
-    { headers: getHeaders() }
-  );
-  if (!response.ok) {
-    throw new Error(`Failed to fetch top coins: ${response.status}`);
-  }
-  return response.json();
+  const data = (await response.json()) as TrackerApiResponse;
+  return {
+    ...data,
+    updatedAt: new Date(data.updatedAt),
+  };
 }
