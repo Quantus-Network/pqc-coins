@@ -14,6 +14,10 @@ export function formatMarketCap(value: number): string {
   return `$${value.toFixed(2)}`;
 }
 
+export function formatMarketCapFull(value: number): string {
+  return `$${Math.round(value).toLocaleString("en-US")}`;
+}
+
 export function formatPercentage(value: number): string {
   if (value < 0.0001) {
     return value.toExponential(2);
